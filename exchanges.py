@@ -42,11 +42,6 @@ class BitFlyer:
                 else:
                     response = session.post(url, data=json.dumps(params))
 
-                print(f"[DEBUG] {method} {url}")
-                print(f"[DEBUG] Status Code: {response.status_code}")
-                print(f"[DEBUG] Headers: {response.headers}")
-                print(f"[DEBUG] Content: {response.content}")
-
                 response.raise_for_status()
 
                 if not response.content:
@@ -202,6 +197,5 @@ class BitFlyer:
         params = {'product_code': self.product_code}
         res = self.request(endpoint, params=params,
                            method='POST', allow_empty=True)
-        print(str(res)[:100] + '.....')
 
         return res

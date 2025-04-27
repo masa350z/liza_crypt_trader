@@ -1,13 +1,32 @@
 # %%
+from dynamodb import HistoricalDB
+import boto3
+from decimal import Decimal
 from exchanges import BitFlyer
 import os
+import time
+from boto3.dynamodb.conditions import Key
 
-api_key = os.getenv('BITFLYER_API_KEY')
-api_secret = os.getenv('BITFLYER_API_SECRET')
-bf = BitFlyer(leverage=True, api_key=api_key, api_secret=api_secret)
+table_name = 'crypto_currency_historicaldata'
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(table_name)
+
 # %%
-bf.ticker()
+timestamp_threshold = int(time.time()) - 60 * 60 * 3
+
+# クエリ実行
+response = table.query(
+    KeyConditionExpression=Key('exchange').eq(
+        "bitflyer-FX") & Key('timestamp').gte(timestamp_threshold)
+)
+
+# 結果取得
+items = response['Items']
+
+prices = [int(i['price']) for i in items]
+timestamps = [int(i['timestamp']) for i in items]
 # %%
-bf.make_order(side='SELL', size=0.001)
 # %%
-bf.make_order(side='BUY', size=0.001)
+db = HistoricalDB()
+# %%
+db.get_historical_data("bitflyer-FX", 3)
